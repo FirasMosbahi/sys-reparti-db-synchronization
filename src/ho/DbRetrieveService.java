@@ -14,7 +14,7 @@ public class DbRetrieveService {
         this.user = "root";
         this.password = "";
         this.url = "jdbc:mysql://localhost:3306/ho";
-        this.query = "SELECT * FROM products_sale";
+        this.query = "SELECT * FROM product_sale";
     }
     public ArrayList<Product> getProducts() throws SQLException {
         ArrayList<Product> productList = new ArrayList<Product>();
@@ -27,13 +27,9 @@ public class DbRetrieveService {
                 Product product = new Product(
                         resultSet.getInt("id"),
                         resultSet.getString("date"),
-                        resultSet.getString("region"),
                         resultSet.getString("product"),
                         resultSet.getInt("qty"),
                         resultSet.getDouble("cost"),
-                        resultSet.getDouble("amt"),
-                        resultSet.getDouble("tax"),
-                        resultSet.getDouble("total"),
                         resultSet.getString("senderBo")
                 );
                 productList.add(product);

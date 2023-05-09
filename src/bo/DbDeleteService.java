@@ -16,14 +16,15 @@ public class DbDeleteService {
         this.user = "root";
         this.password = "";
         this.url = "jdbc:mysql://localhost:3306/bo"+Integer.toString(this.boNumber);
-        this.query = "DELETE FROM product_sale WHERE id=?";
+        this.query = "DELETE FROM product_sale WHERE id=? AND isSynchronized=?";
     }
-    public void deleteProductFromDb(Product product) throws SQLException {
+    public void deleteProductFromDb(int id) throws SQLException {
         try (
                 Connection connection = DriverManager.getConnection(url,user,password);
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
         ){
-            preparedStatement.setInt(1,product.id);
+            preparedStatement.setInt(1,id);
+            preparedStatement.setBoolean(2,false);
             preparedStatement.executeUpdate();
         }catch (Exception e){
             System.out.println(e.getMessage());

@@ -13,7 +13,7 @@ public class HoService {
     private DbUpdateService dbUpdateService;
     private DbDeleteService dbDeleteService;
     private DbRetrieveService dbRetrieveService;
-    HoService(int boNumber){
+    HoService(){
         this.exchange_name = "product_sale_exchange";
         this.dbCreateService = new DbCreateService();
         this.dbDeleteService = new DbDeleteService();
@@ -35,21 +35,19 @@ public class HoService {
             DeliverCallback deliverCallback1 = (consumerTag,delivery) -> {
                 try {
                     bo.Product receivedProduct = bo.Product.deserialize(delivery.getBody());
+                    System.out.println(receivedProduct.id);
+                    System.out.println("passed");
                     Product product = new Product(
                             Integer.parseInt(("1"+Integer.toString(receivedProduct.id))),
                             receivedProduct.date,
-                            receivedProduct.region,
                             receivedProduct.product,
                             receivedProduct.qty,
                             receivedProduct.cost,
-                            receivedProduct.amt,
-                            receivedProduct.tax,
-                            receivedProduct.total,
                             "bo1"
                             );
                     createDbRow(product);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    System.out.println(e.getMessage());
                 }
             };
             DeliverCallback deliverCallback2 = (consumerTag,delivery) -> {
@@ -58,13 +56,9 @@ public class HoService {
                     Product product = new Product(
                             Integer.parseInt(("2"+Integer.toString(receivedProduct.id))),
                             receivedProduct.date,
-                            receivedProduct.region,
                             receivedProduct.product,
                             receivedProduct.qty,
                             receivedProduct.cost,
-                            receivedProduct.amt,
-                            receivedProduct.tax,
-                            receivedProduct.total,
                             "bo2"
                     );
                     createDbRow(product);
@@ -80,13 +74,13 @@ public class HoService {
     public void updateDb(Product product) throws SQLException {
         this.dbUpdateService.updateDb(product);
     }
-    public void deleteFromDb(Product product) throws SQLException {
-        this.dbDeleteService.deleteProductFromDb(product);
+    public void deleteFromDb(int id) throws SQLException {
+        this.dbDeleteService.deleteProductFromDb(id);
     }
     public void createDbRow(Product product) throws SQLException {
         this.dbCreateService.updateDb(product);
     }
-    public void getAllProducts() throws SQLException {
-        this.dbRetrieveService.getProducts();
+    public ArrayList<Product> getAllProducts() throws SQLException {
+        return this.dbRetrieveService.getProducts();
     }
 }

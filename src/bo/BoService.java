@@ -7,6 +7,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.AMQP;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class BoService {
     private final int boNumber;
@@ -15,15 +16,13 @@ public class BoService {
     private final DbUpdateService dbUpdateService;
     private final DbDeleteService dbDeleteService;
     private final DbRetrieveService dbRetrieveService;
-    private final DbRetrieveService dbNotSynchronizedRetrieveService;
     BoService(int boNumber){
         this.boNumber = boNumber;
         this.exchange_name = "product_sale_exchange";
         this.dbCreateService = new DbCreateService(this.boNumber);
         this.dbDeleteService = new DbDeleteService(this.boNumber);
         this.dbUpdateService = new DbUpdateService(this.boNumber);
-        this.dbRetrieveService = new DbRetrieveService(this.boNumber,false);
-        this.dbNotSynchronizedRetrieveService = new DbRetrieveService(this.boNumber,true);
+        this.dbRetrieveService = new DbRetrieveService(this.boNumber);
     }
     public void synchronizeDb() {
         ConnectionFactory factory = new ConnectionFactory();
@@ -34,9 +33,10 @@ public class BoService {
         ) {
             channel.exchangeDeclare(exchange_name, BuiltinExchangeType.DIRECT,true);
             AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder().deliveryMode(2).build();
-            ArrayList<Product> products = dbNotSynchronizedRetrieveService.getProducts();
+            ArrayList<Product> products = dbRetrieveService.getNotSyncProducts();
             for(Product product : products){
                 channel.basicPublish(exchange_name, Integer.toString(boNumber),properties, product.getByteArray());
+                System.out.println(Arrays.toString(product.getByteArray()));
                 dbUpdateService.updateSynchronizedToTrue(product);
             }
         } catch (Exception e) {
@@ -46,13 +46,13 @@ public class BoService {
     public void updateDb(Product product) throws SQLException {
         this.dbUpdateService.updateDb(product);
     }
-    public void deleteFromDb(Product product) throws SQLException {
-        this.dbDeleteService.deleteProductFromDb(product);
+    public void deleteFromDb(int id) throws SQLException {
+        this.dbDeleteService.deleteProductFromDb(id);
     }
     public void createDbRow(Product product) throws SQLException {
         this.dbCreateService.updateDb(product);
     }
-    public void getAllProducts() throws SQLException {
-        this.dbRetrieveService.getProducts();
+    public ArrayList<Product> getAllProducts() throws SQLException {
+        return this.dbRetrieveService.getProducts();
     }
 }

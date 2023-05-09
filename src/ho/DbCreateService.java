@@ -16,7 +16,7 @@ public class DbCreateService {
         this.user = "root";
         this.password = "";
         this.url = "jdbc:mysql://localhost:3306/ho";
-        this.query = "INSERT INTO product_sale (id,date,region,product,qty,cost,tax,amt,total,senderBo) VALUES (?,?,?,?,?,?,?,?,?,?)";
+        this.query = "INSERT INTO product_sale (id,date,product,qty,cost,senderBo) VALUES (?,?,?,?,?,?)";
     }
     public void updateDb(Product product) throws SQLException {
         try (
@@ -25,14 +25,10 @@ public class DbCreateService {
         ){
             preparedStatement.setInt(1,product.id);
             preparedStatement.setString(2,product.date);
-            preparedStatement.setString(3, product.region);
-            preparedStatement.setString(4, product.product);
-            preparedStatement.setInt(5,product.qty);
-            preparedStatement.setDouble(6,product.cost);
-            preparedStatement.setDouble(7,product.tax);
-            preparedStatement.setDouble(8,product.amt);
-            preparedStatement.setDouble(9,product.total);
-            preparedStatement.setString(10, product.senderBo);
+            preparedStatement.setString(3, product.product);
+            preparedStatement.setInt(4,product.qty);
+            preparedStatement.setDouble(5,product.cost);
+            preparedStatement.setString(6, product.senderBo);
             preparedStatement.executeUpdate();
         }catch (Exception e){
             System.out.println(e.getMessage());

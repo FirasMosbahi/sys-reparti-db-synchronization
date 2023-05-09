@@ -18,12 +18,12 @@ public class DbDeleteService {
         this.url = "jdbc:mysql://localhost:3306/ho";
         this.query = "DELETE FROM product_sale WHERE id=?";
     }
-    public void deleteProductFromDb(Product product) throws SQLException {
+    public void deleteProductFromDb(int id) throws SQLException {
         try (
                 Connection connection = DriverManager.getConnection(url,user,password);
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
         ){
-            preparedStatement.setInt(1,product.id);
+            preparedStatement.setInt(1,id);
             preparedStatement.executeUpdate();
         }catch (Exception e){
             System.out.println(e.getMessage());
