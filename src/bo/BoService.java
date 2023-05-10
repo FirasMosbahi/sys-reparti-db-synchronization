@@ -1,10 +1,6 @@
 package bo;
 
-import com.rabbitmq.client.BuiltinExchangeType;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,22 +21,31 @@ public class BoService {
         this.dbRetrieveService = new DbRetrieveService(this.boNumber);
     }
     public void synchronizeDb() {
+        
+        
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
+        
+
+       
         try (
-                Connection connection = factory.newConnection();
-                Channel channel = connection.createChannel();
+            Connection connection = factory.newConnection();
+            Channel channel = connection.createChannel();
         ) {
             channel.exchangeDeclare(exchange_name, BuiltinExchangeType.DIRECT,true);
             AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder().deliveryMode(2).build();
             ArrayList<Product> products = dbRetrieveService.getNotSyncProducts();
             for(Product product : products){
+                //wait(1000);
                 channel.basicPublish(exchange_name, Integer.toString(boNumber),properties, product.getByteArray());
+                
                 System.out.println(Arrays.toString(product.getByteArray()));
                 dbUpdateService.updateSynchronizedToTrue(product);
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            
+
         }
     }
     public void updateDb(Product product) throws SQLException {
