@@ -14,9 +14,12 @@ import javax.swing.JFrame;
 
 import java.awt.Color;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 
@@ -64,35 +67,35 @@ public class Ho extends JPanel {
         JLabel lblNewLabel_1_2_1 = new JLabel("Product");
         lblNewLabel_1_2_1.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.ITALIC, 25));
         lblNewLabel_1_2_1.setBounds(-1, 74, 134, 40);
-        add(lblNewLabel_1_2_1);
+        //add(lblNewLabel_1_2_1);
 
         JLabel lblNewLabel_1_2_1_1 = new JLabel("QTY");
         lblNewLabel_1_2_1_1.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.ITALIC, 25));
         lblNewLabel_1_2_1_1.setBounds(-1, 229, 141, 40);
-        add(lblNewLabel_1_2_1_1);
+        //add(lblNewLabel_1_2_1_1);
 
         JLabel lblNewLabel_1_1 = new JLabel("Date");
         lblNewLabel_1_1.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.ITALIC, 25));
         lblNewLabel_1_1.setBounds(-1, 151, 134, 40);
-        add(lblNewLabel_1_1);
+        //add(lblNewLabel_1_1);
 
         textField = new JTextField();
         textField.setFont(new Font("Verdana Pro", Font.PLAIN, 22));
         textField.setColumns(10);
         textField.setBounds(115, 150, 192, 40);
-        add(textField);
+        //add(textField);
 
         textField_2 = new JTextField();
         textField_2.setFont(new Font("Verdana Pro", Font.PLAIN, 22));
         textField_2.setColumns(10);
         textField_2.setBounds(115, 74, 192, 40);
-        add(textField_2);
+        //add(textField_2);
 
         textField_3 = new JTextField();
         textField_3.setFont(new Font("Verdana Pro", Font.PLAIN, 22));
         textField_3.setColumns(10);
         textField_3.setBounds(116, 228, 192, 40);
-        add(textField_3);
+        //add(textField_3);
 
         JButton btnAdd = new JButton("add");
         btnAdd.addActionListener(new ActionListener() {
@@ -122,7 +125,7 @@ public class Ho extends JPanel {
         btnAdd.setFont(new Font("Segoe UI Black", Font.ITALIC, 20));
         btnAdd.setBackground(Color.CYAN);
         btnAdd.setBounds(0, 509, 308, 35);
-        add(btnAdd);
+        //add(btnAdd);
 
         JButton btnClear = new JButton("clear");
         btnClear.addActionListener(new ActionListener() {
@@ -138,31 +141,21 @@ public class Ho extends JPanel {
         btnClear.setFont(new Font("Segoe UI Black", Font.ITALIC, 20));
         btnClear.setBackground(Color.CYAN);
         btnClear.setBounds(0, 554, 308, 35);
-        add(btnClear);
+        //add(btnClear);
 
 
-        JButton btnSyncListe = new JButton("Synchronize");
-        btnSyncListe.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                hoService.synchronizeDb();
-            }
-        });
-        btnSyncListe.setForeground(new Color(95, 158, 160));
-        btnSyncListe.setFont(new Font("Segoe UI Black", Font.ITALIC, 20));
-        btnSyncListe.setBackground(Color.CYAN);
-        btnSyncListe.setBounds(607, 26, 231, 35);
-        add(btnSyncListe);
+        
 
         textField_7 = new JTextField();
         textField_7.setFont(new Font("Verdana Pro", Font.PLAIN, 22));
         textField_7.setColumns(10);
         textField_7.setBounds(116, 312, 192, 40);
-        add(textField_7);
+        //add(textField_7);
 
         JLabel lblNewLabel_1_2_2_1 = new JLabel("cost");
         lblNewLabel_1_2_2_1.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.ITALIC, 25));
         lblNewLabel_1_2_2_1.setBounds(0, 311, 118, 40);
-        add(lblNewLabel_1_2_2_1);
+        //add(lblNewLabel_1_2_2_1);
 
         JButton btnGetList = new JButton("Get List");
         btnGetList.setForeground(new Color(95, 158, 160));
@@ -177,9 +170,9 @@ public class Ho extends JPanel {
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
-                for(int j=0;j<(model.getRowCount()+1);j++){
-                    model.removeRow(j);
-                }
+                
+                    model.setRowCount(0);
+                
                 for(Product product : initialProducts){
                     row[0]=product.id;
                     row[1]=product.product;
@@ -192,7 +185,19 @@ public class Ho extends JPanel {
                 }
             }
         });
-        add(btnGetList);
+        //add(btnGetList);
+        JButton btnSyncListe = new JButton("Synchronize");
+        btnSyncListe.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //hoService.synchronizeDb();
+                btnGetList.doClick();
+            }
+        });
+        btnSyncListe.setForeground(new Color(95, 158, 160));
+        btnSyncListe.setFont(new Font("Segoe UI Black", Font.ITALIC, 20));
+        btnSyncListe.setBackground(Color.CYAN);
+        btnSyncListe.setBounds(580, 26, 231, 35);
+        add(btnSyncListe);
 
         table.getColumnModel().getColumn(0).setPreferredWidth(20);
         table.getColumnModel().getColumn(1).setPreferredWidth(67);
@@ -206,32 +211,34 @@ public class Ho extends JPanel {
                 if (col == 5) {
                     try {
                         hoService.updateDb(new Product(
-                                (int) model.getValueAt(0,row),
-                                (String) model.getValueAt(2,row),
-                                (String) model.getValueAt(1,row),
-                                (int) model.getValueAt(3,row),
-                                (double) model.getValueAt(4,row),
+                                Integer.parseInt( model.getValueAt(row,0).toString()),
+                                (String) model.getValueAt(row,1).toString(),
+                                (String) model.getValueAt(row,2).toString(),
+                                Integer.parseInt(model.getValueAt(row,3).toString()),
+                                Double.parseDouble((model.getValueAt(row,4)).toString()),
                                 "ho"
                         ));
+                        
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
                 }
                 else if (col == 6) {
-                    try {
-                        hoService.deleteFromDb((Integer) model.getValueAt(row,0));
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
                     int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this row?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
+                    
                     if (confirmed == JOptionPane.YES_OPTION) {
+                        try {
+                            hoService.deleteFromDb((Integer) model.getValueAt(row,0));
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
                         model.removeRow(row);
                     }
                 }
             }
         });
     }
-    public static void main(String [] args) throws SQLException {
+    public static void main(String [] args) throws SQLException, IOException, TimeoutException {
         JFrame frame = new JFrame("Ho");
         frame.setContentPane(new Ho());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -239,5 +246,7 @@ public class Ho extends JPanel {
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+
+        HoService.synchronizeDb();
     }
 }

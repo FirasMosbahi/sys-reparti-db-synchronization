@@ -44,8 +44,8 @@ public class Bo2 extends JPanel {
         scrollPane.setViewportView(table);
         model = new DefaultTableModel();
 
-        Object[] column= {"ID","Product","Date","QTY","Tax","UPDATE","DELETE"};
-        Object[] row =new Object[7];
+        Object[] column= {"ID","Product","Date","QTY","Tax","sync","UPDATE","DELETE"};
+        Object[] row =new Object[8];
         model.setColumnIdentifiers(column);
         table.setModel(model);
         ArrayList<Product> initialProducts = bo2Service.getAllProducts();
@@ -55,8 +55,9 @@ public class Bo2 extends JPanel {
             row[2]=product.date;
             row[3]=product.qty;
             row[4]=product.cost;
-            row[5]="Update";
-            row[6]="Delete";
+            row[5]=product.isSynchronized;
+            row[6]="Update";
+            row[7]="Delete";
             model.addRow(row);
             i++;
         }
@@ -111,8 +112,9 @@ public class Bo2 extends JPanel {
                 row[2]=Date;
                 row[3]=Qty;
                 row[4]=cost;
-                row[5]="Update";
-                row[6]="Delete";
+                row[5]="false";
+                row[6]="Update";
+                row[7]="Delete";
                 model.addRow(row);
                 i++;
             }}
@@ -176,23 +178,22 @@ public class Bo2 extends JPanel {
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
-                for(int j=0;j<(model.getRowCount()+1);j++){
-                    model.removeRow(j);
-                }
+                model.setRowCount(0);
                 for(Product product : initialProducts){
                     row[0]=product.id;
                     row[1]=product.product;
                     row[2]=product.date;
                     row[3]=product.qty;
                     row[4]=product.cost;
-                    row[5]="Update";
-                    row[6]="Delete";
+                    row[5]=product.isSynchronized;
+                    row[6]="Update";
+                    row[7]="Delete";
                     model.addRow(row);
                 }
             }
         });
         add(btnGetList);
-
+        
         table.getColumnModel().getColumn(0).setPreferredWidth(20);
         table.getColumnModel().getColumn(1).setPreferredWidth(67);
         table.getColumnModel().getColumn(2).setPreferredWidth(85);
@@ -202,28 +203,36 @@ public class Bo2 extends JPanel {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 int row = table.rowAtPoint(evt.getPoint());
                 int col = table.columnAtPoint(evt.getPoint());
-                if (col == 5) {
+                if (col == 6) {
                     try {
+                        System.out.println(" "+ model.getValueAt(row,0)+
+                         model.getValueAt(row,1)+
+                         model.getValueAt(row,2)+
+                         model.getValueAt(row,3)+
+                         model.getValueAt(row,4)+
+                        false);
                         bo2Service.updateDb(new Product(
-                                (int) model.getValueAt(0,row),
-                                (String) model.getValueAt(2,row),
-                                (String) model.getValueAt(1,row),
-                                (int) model.getValueAt(3,row),
-                                (double) model.getValueAt(4,row),
+                                Integer.parseInt( model.getValueAt(row,0).toString()),
+                                (String) model.getValueAt(row,1).toString(),
+                                (String) model.getValueAt(row,2).toString(),
+                                Integer.parseInt(model.getValueAt(row,3).toString()),
+                                Double.parseDouble((model.getValueAt(row,4)).toString()),
                                 false
                         ));
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
                 }
-                else if (col == 6) {
-                    try {
-                        bo2Service.deleteFromDb(row);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
+                else if (col == 7) {
                     int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this row?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
+
+                    
                     if (confirmed == JOptionPane.YES_OPTION) {
+                        try {
+                            bo2Service.deleteFromDb(row);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
                         model.removeRow(row);
                     }
                 }

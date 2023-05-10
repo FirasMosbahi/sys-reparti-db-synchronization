@@ -34,8 +34,8 @@ public class DbUpdateService {
             preparedStatement.setString(2, product.product);
             preparedStatement.setInt(3,product.qty);
             preparedStatement.setDouble(4,product.cost);
-            preparedStatement.setInt(6,product.id);
-            preparedStatement.setBoolean(7,false);
+            preparedStatement.setInt(5,product.id);
+            preparedStatement.setBoolean(6,false);
             preparedStatement.executeUpdate();
         }catch (Exception e){
             System.out.println(e.getMessage());
